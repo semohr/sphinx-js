@@ -15,7 +15,6 @@ from .analyzer_utils import Command, is_explicitly_rooted
 from .ir import Attribute, Class, Function, Interface, NO_DEFAULT, Param, Pathname, Return, TopLevel
 from .suffix_tree import SuffixTree
 
-
 class Analyzer:
     def __init__(self, json, base_dir):
         """
@@ -37,6 +36,7 @@ class Analyzer:
         json = typedoc_output(abs_source_paths,
                               app.confdir,
                               app.config.jsdoc_config_path)
+
         return cls(json, base_dir)
 
     def get_object(self, path_suffix, as_type=None):
@@ -236,7 +236,7 @@ class Analyzer:
         """
         types = []
         for type in node.get(kind, []):
-            if type['type'] == 'reference':
+            if type['type'] == 'reference' and "id" in type:
                 pathname = Pathname(make_path_segments(self._index[type['id']],
                                                        self._base_dir))
                 types.append(pathname)
@@ -370,7 +370,7 @@ def index_by_id(index, node, parent=None):
 
         # Burrow into everything that could contain more ID'd items. We don't
         # need setSignature or getSignature for now. Do we need indexSignature?
-        for tag in ['children', 'signatures', 'parameters']:
+        for tag in ['children', 'signatures', 'parameters',"typeParameter"]:
             for child in node.get(tag, []):
                 index_by_id(index, child, parent=node)
 

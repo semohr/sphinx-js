@@ -2,6 +2,22 @@
 sphinx-js
 =========
 
+<span style="color:red">THIS IS  NOT THE OFFICAL VERSION OF SPHINX-JS:</span>
+Here I try to fix a number of problems I encountered when trying to use sphinx-js with 
+the most recent versions of typedoc.
+
+For me the following versions are working:
+- Sphinx v4.4.0
+- TypeDoc 0.22.11 (Using TypeScript 4.5.5)
+
+
+You can install my version of sphinx-js:
+
+```bash
+pip install https://github.com/semohr/sphinx-js/archive/refs/heads/master.tar.gz
+```
+
+
 Why
 ===
 
