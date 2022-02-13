@@ -2,7 +2,7 @@
 
 from codecs import getreader
 from errno import ENOENT
-from json import load
+from json import load, dump
 from os.path import basename, join, normpath, relpath, sep, splitext
 import re
 import subprocess
@@ -30,6 +30,10 @@ class Analyzer:
         del self._index
         self._objects_by_path = SuffixTree()
         self._objects_by_path.add_many((obj.path.segments, obj) for obj in ir_objects)
+        self._name_to_filename = self._get_name_to_filename(ir_objects)
+        # Save name to filename for later use:
+        with open('/tmp/name_to_filename.json', 'w') as f:
+            dump(self._name_to_filename, f,indent=2)
 
     @classmethod
     def from_disk(cls, abs_source_paths, app, base_dir):
@@ -38,6 +42,19 @@ class Analyzer:
                               app.config.jsdoc_config_path)
 
         return cls(json, base_dir)
+
+    def _get_name_to_filename(self,ir_objects):
+        t = {}
+        for obj in ir_objects:
+            path = "".join(obj.path.segments).split('/')
+            ref = path.pop(-1)
+            ref = ref.split('.')
+            
+            for r in range(len(ref)):
+                ref_str = ".".join(ref[r:])
+                t[ref_str] = "/".join(path) +"/"+ obj.filename
+            
+        return t
 
     def get_object(self, path_suffix, as_type=None):
         """Return the IR object with the given path suffix.
@@ -86,7 +103,7 @@ class Analyzer:
             examples=[],
             see_alsos=[],
             properties=[],
-
+            
             exported_from=exported_from)
 
     def _constructor_and_members(self, cls) -> Tuple[Optional[Function], List[Union[Function, Attribute]]]:
@@ -220,6 +237,7 @@ class Analyzer:
                 returns=self._make_returns(node) if kind != 'Constructor signature' else [],
                 **member_properties(node['__parent']),
                 **self._top_level_properties(node))
+
 
         return ir, node.get('children', [])
 
