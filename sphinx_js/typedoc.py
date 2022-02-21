@@ -212,10 +212,10 @@ class Analyzer:
             sigs = node.get('signatures')
             first_sig = sigs[0]  # Should always have at least one
             def rec_helper(node):
-                if "sources" in node["__parent"]:
-                    return node["__parent"]["sources"]
-                else:
-                    rec_helper(node["__parent"])
+                if not "sources" in node["__parent"]:
+                    return rec_helper(node["__parent"])
+                return node["__parent"]["sources"]
+                    
             if "sources" in node:
                 first_sig['sources'] = node['sources']
             else:
